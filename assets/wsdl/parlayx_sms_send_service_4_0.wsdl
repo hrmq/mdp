@@ -1,0 +1,137 @@
+<wsdl:definitions targetNamespace="##NAMESPACE##"
+                  xmlns:apachesoap="http://xml.apache.org/xml-soap"
+                  xmlns:impl="##NAMESPACE##"
+                  xmlns:tns="http://mci.tajmi.ir"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+   <wsdl:types>
+      <schema elementFormDefault="qualified"
+              targetNamespace="##NAMESPACE##"
+              xmlns="http://www.w3.org/2001/XMLSchema">
+         <element name="sendSms">
+            <complexType>
+               <sequence>
+                  <element name="addresses" type="xsd:anyURI" minOccurs="1" maxOccurs="unbounded"/>
+                  <element name="senderName" type="xsd:string" />
+                  <element name="charging" type="impl:ChargingInformation" minOccurs="0" maxOccurs="1"/>
+                  <element name="message" type="xsd:string"/>
+                  <xsd:element name="receiptRequest" type="impl:SimpleReference" minOccurs="0" maxOccurs="1"/>
+
+               </sequence>
+            </complexType>
+         </element>
+
+         <xsd:complexType name="SimpleReference">
+            <xsd:sequence>
+               <xsd:element name="endpoint" type="xsd:anyURI"/>
+               <xsd:element name="interfaceName" type="xsd:string"/>
+               <xsd:element name="correlator" type="xsd:string"/>
+            </xsd:sequence>
+         </xsd:complexType>
+
+
+
+         <complexType name="ChargingInformation" >
+               <sequence>
+                  <element name="description" type="xsd:string" minOccurs="1" maxOccurs="unbounded"/>
+                  <element maxOccurs="1" minOccurs="0" name="currency" type="xsd:string"/>
+                  <element maxOccurs="1" minOccurs="0" name="amount" type="xsd:decimal"/>
+                  <element maxOccurs="1" minOccurs="0" name="code" type="xsd:string"/>
+               </sequence>
+            </complexType>
+
+
+         <element name="notifySmsDeliveryReceipt">
+            <complexType>
+               <sequence>
+                  <element name="correlator" type="xsd:string"/>                  <element name="password" type="xsd:string"/>
+                  <xsd:element name="deliveryStatus" type="impl:DeliveryInformation"/>               </sequence>
+            </complexType>
+         </element>
+
+         <xsd:complexType name="DeliveryInformation">
+            <xsd:sequence>
+               <xsd:element name="address" type="xsd:anyURI" />
+               <xsd:element name="deliveryStatus" type="impl:DeliveryStatus" />
+               <xsd:element name="description" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+            </xsd:sequence>
+         </xsd:complexType>
+
+         <xsd:simpleType name="DeliveryStatus">
+            <xsd:restriction base="xsd:string">
+               <xsd:enumeration value="DeliveredToNetwork"/>
+               <xsd:enumeration value="DeliveryUncertain"/>
+               <xsd:enumeration value="DeliveryImpossible"/>
+               <xsd:enumeration value="MessageWaiting"/>
+               <xsd:enumeration value="DeliveredToTerminal"/>
+               <xsd:enumeration value="DeliveryNotificationNotSupported"/>
+            </xsd:restriction>
+         </xsd:simpleType>
+
+
+         <complexType name="StringArray">
+            <sequence>
+               <element maxOccurs="unbounded" minOccurs="1" name="item" type="xsd:string"/>
+            </sequence>
+         </complexType>
+      </schema>
+   </wsdl:types>
+   <wsdl:message name="sendSmsRequest">
+      <wsdl:part element="impl:sendSms" name="parameters"/>
+   </wsdl:message>
+   <wsdl:message name="sendSmsResponse">
+      <wsdl:part element="impl:sendSmsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="notifySmsDeliveryReceiptRequest">
+      <wsdl:part element="impl:notifySmsDeliveryReceipt" name="parameters"/>
+   </wsdl:message>
+   <wsdl:message name="notifySmsDeliveryReceiptResponse">
+      <wsdl:part element="impl:notifySmsDeliveryReceiptResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:portType name="JaxRpcMessagingService">
+      <wsdl:operation name="sendSms">
+         <wsdl:input message="impl:sendSmsRequest" name="sendSmsRequest"/>
+         <wsdl:output message="impl:sendSmsResponse" name="sendSmsResponse"/>
+      </wsdl:operation>
+
+      <wsdl:operation name="notifySmsDeliveryReceipt">
+         <wsdl:input message="impl:notifySmsDeliveryReceiptRequest" name="notifySmsDeliveryReceiptRequest"/>
+         <wsdl:output message="impl:notifySmsDeliveryReceiptResponse" name="notifySmsDeliveryReceiptResponse"/>
+      </wsdl:operation>
+
+   </wsdl:portType>
+   <wsdl:binding name="MessagingServiceSoapBinding"
+                 type="impl:JaxRpcMessagingService">
+      <wsdlsoap:binding style="document"
+                        transport="http://schemas.xmlsoap.org/soap/http"/>
+      <wsdl:operation name="sendSms">
+         <wsdlsoap:operation soapAction=""/>
+         <wsdl:input name="sendSmsRequest">
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output name="sendSmsResponse">
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+      </wsdl:operation>
+
+      <wsdl:operation name="notifySmsDeliveryReceipt">
+         <wsdlsoap:operation soapAction=""/>
+         <wsdl:input name="notifySmsDeliveryReceiptRequest">
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output name="notifySmsDeliveryReceiptResponse">
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+      </wsdl:operation>
+
+   </wsdl:binding>
+   <wsdl:service name="MessagingService">
+      <wsdl:port binding="impl:MessagingServiceSoapBinding"
+                 name="MessagingPort">
+         <wsdlsoap:address location="##NAMESPACE##"/>
+      </wsdl:port>
+   </wsdl:service>
+</wsdl:definitions>
